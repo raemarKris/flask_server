@@ -14,11 +14,21 @@ from flask import request
 from handle_file import handle_file
 from answer_question import get_answer_from_files
 from conversation import get_answer
-
+from bson import ObjectId
 from routes import rest_api
 from models import db
+from flask_migrate import Migrate
+from models import Users, Chats
+from datetime import datetime
+from pymongo import MongoClient
+import json
 
+client = MongoClient("mongodb+srv://kris:Baltimore10@test.ltopuuj.mongodb.net/?retryWrites=true&w=majority")
+db = client["test"]
 
+users_collection = db["users"]
+chats_collection = db["chats"]
+messages_collection = db["messages"]
 
 logging.basicConfig(
     level=logging.INFO,
@@ -57,6 +67,8 @@ def load_pinecone_index() -> pinecone.Index:
 BASE_DIR = os.path.abspath(os.path.dirname(__file__))
 
 
+
+
 def create_app():
     pinecone_index = load_pinecone_index()
     tokenizer = tiktoken.get_encoding("gpt2")
@@ -66,9 +78,11 @@ def create_app():
     app.tokenizer = tokenizer
     app.session_id = session_id
     app.config.from_object('config.BaseConfig')
-    app.config['SQLALCHEMY_DATABASE_URI'] = SQLALCHEMY_DATABASE_URI = 'sqlite:///' + os.path.join(BASE_DIR, 'db.sqlite3')
+    app.config["JWT_SECRET_KEY"] = "super-secret"
+    # app.config['SQLALCHEMY_DATABASE_URI'] = SQLALCHEMY_DATABASE_URI = 'sqlite:///' + os.path.join(BASE_DIR, 'db.sqlite3')
     # db.create_all()
-    db.init_app(app)
+    # db.init_app(app)
+   
     rest_api.init_app(app)
     # log session id
     logging.info(f"session_id: {session_id}")
@@ -78,8 +92,6 @@ def create_app():
     return app
 
 app = create_app()
-
-
 
 
 
@@ -123,6 +135,99 @@ def legalai_conversation():
 
         return answer_question
 
+
+@app.route('/api/chats', methods=['POST'])
+
+def create_chat():
+    print(request.get_json())
+    data = request.get_json()
+    user_id = data.get('userId')
+    chat_id = data.get('chatId')
+
+    # check if the user exists
+    user = users_collection.find_one({"_id": ObjectId(user_id)})
+    print('USER')
+    print(user)
+    if user is None:
+        print('NO USER ID')
+        return jsonify({'error': 'User not found'}), 404
+
+    # create a new chat for the user
+    print('USER ID')
+    print(user_id)
+    chat = {
+        "user_id": user_id,
+        "chat_id": chat_id,
+        "created_at": datetime.utcnow()
+    }
+    chats_collection.insert_one(chat)
+
+    return jsonify({'success': True, 'chatId': chat_id}), 201
+
+    # return {"success": True, "token": token, "user": user_dict}, 200
+
+
+
+# create a new message for a chat
+@app.route('/api/messages', methods=['POST'])
+def create_message():
+    print(request.get_json())
+
+    data = request.get_json()
+
+    message_text = data.get('message_text')
+    sender = data.get('sender')
+    chat_id = data.get('chat_id')
+    user_id = data.get('user_id')
+
+    chat = chats_collection.find_one({"chat_id": chat_id})
+
+    print('Chat')
+    print(chat)
+
+    if chat is None:
+        return jsonify({'error': 'Chat not found'}), 404
+
+    
+    message = {
+        'user_id': user_id,
+        'message' :message_text,
+        'sender':sender,
+        "chat_id": chat_id,
+        "created_at": datetime.utcnow()
+    }
+    messages_collection.insert_one(message)
+
+
+    return jsonify({'success': True}), 201
+
+
+
+
+@app.route('/api/get_messages')
+def get_messages():
+    user_id = request.args.get('user_id')
+
+    messages = messages_collection.find({"user_id": user_id})
+
+    if messages is None:
+        return jsonify({'error': 'Chat not found'}), 404
+
+    messages_list = []
+
+    for message in messages:
+        message['_id'] = str(message['_id'])
+
+        message_dict = {
+            "chat_id": message.get("chat_id"),
+            "message": message.get("message"),
+            "sender": message.get("sender"),
+            "id": str(message['_id'])
+        }
+
+        messages_list.append(message_dict)
+    print(messages_list)
+    return jsonify({"success": True,  "messages": messages_list}), 200
 
 
 
