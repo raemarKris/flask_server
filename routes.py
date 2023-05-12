@@ -1,4 +1,5 @@
 
+
 from flask_jwt_extended import (
     JWTManager, jwt_required, create_access_token,
     get_jwt_identity
@@ -149,6 +150,10 @@ class LogoutUser(Resource):
         current_user.save()
 
         return {"success": True}, 200
+
+
+
+
 
 
 
