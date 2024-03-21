@@ -23,7 +23,7 @@ from datetime import datetime
 from pymongo import MongoClient
 import json
 
-client = MongoClient("mongodb+srv://kris:Baltimore10@test.ltopuuj.mongodb.net/?retryWrites=true&w=majority")
+client = MongoClient("")
 db = client["test"]
 
 users_collection = db["users"]
