@@ -1,7 +1,7 @@
 # ----- PINECONE CONFIG -----
-PINECONE_API_KEY: "89619e78-30fc-4628-9b4d-53b51089dd99"
+PINECONE_API_KEY: ""
 PINECONE_INDEX: "test" # dimensions: 1536, metric: cosine similarity
-PINECONE_ENV: "us-west4-gcp"
+PINECONE_ENV: ""
 
 # ----- SERVER PORT ----
 SERVER_PORT: "8080"
