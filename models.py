@@ -4,7 +4,7 @@ import pymongo
 from datetime import datetime
 from werkzeug.security import generate_password_hash, check_password_hash
 from pymongo import MongoClient
-client = pymongo.MongoClient("mongodb+srv://kris:Baltimore10@test.ltopuuj.mongodb.net/?retryWrites=true&w=majority")
+client = pymongo.MongoClient("")
 db = client["test"]
 
 class Users:
