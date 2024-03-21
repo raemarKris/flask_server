@@ -78,9 +78,9 @@ def get_answer(question):
     GPT4 = ChatOpenAI(model_name = "gpt-4", temperature=1, max_tokens=200, top_p=1, frequency_penalty=0, presence_penalty=0)
 
 
-    PINECONE_API_KEY= "89619e78-30fc-4628-9b4d-53b51089dd99"
-    PINECONE_ENV= "us-west4-gcp"
-    OPENAI_API_KEY = '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'
+    PINECONE_API_KEY= ""
+    PINECONE_ENV= ""
+    OPENAI_API_KEY = ''
 
     CHATGPTMODEL = "gpt-3.5-turbo"
     GPT4MODEL = "gpt-4"
