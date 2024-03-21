@@ -15,7 +15,7 @@ from config import BaseConfig
 from bson import json_util
 from bson.objectid import ObjectId
 
-client =MongoClient("mongodb+srv://kris:Baltimore10@test.ltopuuj.mongodb.net/?retryWrites=true&w=majority")
+client =MongoClient("")
 db = client["test"]
 
 users = db['users']
